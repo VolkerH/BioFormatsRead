@@ -122,7 +122,7 @@ def get_metainfo_cziread(filename):
         # Iterate over the metadata
         for elem in czi.metadata.getiterator():
 
-            if elem.tag == 'LensNA':
+            if elem.tag == 'LensNA':           
                 objNA = np.float(elem.text)
 
             if elem.tag == 'NominalMagnification':
@@ -151,7 +151,7 @@ def get_metainfo_cziread(filename):
         cziorder = 'unknown'
 
     return objNA, objMag, objName, objImm, CamName, totalMag
-
+    
 
 def get_metainfo_cziread_camera(filename):
 
@@ -167,6 +167,33 @@ def get_metainfo_cziread_camera(filename):
 
     return cameraname
 
+def get_metainfo_cziread_scaling(filename):
+    # define default values in case something is missing inside the metadata
+    xscale = np.NaN
+    yscale = np.NaN
+    xunit = "n.a."
+    yunit = "n.a."
+
+    try:
+        czi = CziFile(filename)
+
+        # Iterate over the metadata
+        for elem in czi.metadata.getiterator():
+            if 'Distance' in elem.tag or 'Scaling' in elem.tag:
+                if repr(elem.attrib) == "{'Id': 'X'}":
+                    xscale = elem.getchildren()[0].text
+                    xunit = elem.getchildren()[1].text
+                if repr(elem.attrib) == "{'Id': 'Y'}":
+                    yscale = elem.getchildren()[0].text
+                    yunit = elem.getchildren()[1].text
+        czi.close()
+
+    except:
+        print('czifile.py did not detect an CZI file.')
+
+
+    return xscale, xunit, yscale, yunit
+    
 
 def getWellInfofromCZI(wellstring):
 
