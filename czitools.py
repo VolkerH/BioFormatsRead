@@ -173,6 +173,8 @@ def get_metainfo_cziread_scaling(filename):
     yscale = np.NaN
     xunit = "n.a."
     yunit = "n.a."
+    xpos = (np.NaN, "n.a.")
+    ypos = (np.NaN, "n.a.")
 
     try:
         czi = CziFile(filename)
@@ -181,18 +183,28 @@ def get_metainfo_cziread_scaling(filename):
         for elem in czi.metadata.getiterator():
             if 'Distance' in elem.tag or 'Scaling' in elem.tag:
                 if repr(elem.attrib) == "{'Id': 'X'}":
-                    xscale = elem.getchildren()[0].text
+                    xscale = float(elem.getchildren()[0].text)
                     xunit = elem.getchildren()[1].text
                 if repr(elem.attrib) == "{'Id': 'Y'}":
-                    yscale = elem.getchildren()[0].text
+                    yscale = float(elem.getchildren()[0].text)
                     yunit = elem.getchildren()[1].text
+            
+            if 'ParameterCollection' in elem.tag:
+                if "MTBStageAxis" in elem.attrib['Id']:
+                    children = elem.getchildren()
+                    for c in children:
+                        if c.tag == 'Position':
+                            axispos = c.text
+                            unit = c.attrib['Unit']
+                        if 'X' in elem.attrib['Id']:
+                            xpos = (float(axispos), unit)
+                        elif 'Y'in elem.attrib['Id']:
+                            ypos = (float(axispos), unit)
         czi.close()
-
     except:
         print('czifile.py did not detect an CZI file.')
 
-
-    return xscale, xunit, yscale, yunit
+    return (xscale, xunit), (yscale, yunit), xpos, ypos
     
 
 def getWellInfofromCZI(wellstring):
