@@ -196,10 +196,10 @@ def get_metainfo_cziread_scaling(filename):
                         if c.tag == 'Position':
                             axispos = c.text
                             unit = c.attrib['Unit']
-                        if 'X' in elem.attrib['Id']:
-                            xpos = (float(axispos), unit)
-                        elif 'Y'in elem.attrib['Id']:
-                            ypos = (float(axispos), unit)
+                            if 'X' in elem.attrib['Id']:
+                                xpos = (float(axispos), unit)
+                            elif 'Y'in elem.attrib['Id']:
+                                ypos = (float(axispos), unit)
         czi.close()
     except:
         print('czifile.py did not detect an CZI file.')
